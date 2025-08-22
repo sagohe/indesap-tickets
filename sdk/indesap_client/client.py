@@ -39,8 +39,7 @@ class IndesapClient:
         payload = {"title": title, "description": description, "priority": priority}
         r = self.session.post(self._url("/tickets/"), json=payload, timeout=self.timeout)
         r.raise_for_status()
-        data = r.json()
-        return Ticket(**data)
+        return Ticket(**r.json())
 
     def list_tickets(self) -> list[Ticket]:
         r = self.session.get(self._url("/tickets/"), timeout=self.timeout)
