@@ -31,13 +31,14 @@ class IndesapClient:
         return f"{self.base_url}{path}"
 
     def create_ticket(
-        self, title: str, description: str | None = None, priority: Priority = "medium"
+        self,
+        title: str,
+        description: str | None = None,
+        priority: Priority = "medium",
     ) -> Ticket:
         payload = {"title": title, "description": description, "priority": priority}
         r = self.session.post(self._url("/tickets/"), json=payload, timeout=self.timeout)
-        if r.status_code != 201:
-            print("ERROR DETALLE:", r.status_code, r.text)  # <-- verás el mensaje de validación
-            r.raise_for_status()
+        r.raise_for_status()
         data = r.json()
         return Ticket(**data)
 

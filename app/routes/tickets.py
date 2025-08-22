@@ -14,7 +14,7 @@ def create_ticket(payload: TicketCreate) -> Ticket:
 
 
 @router.get("/", response_model=list[Ticket])
-def list_ticket() -> list[Ticket]:
+def list_tickets() -> list[Ticket]:
     return store.list()
 
 
