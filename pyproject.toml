@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "indesap-tickets"
+version = "0.1.0"
+description = "Demo: API de tickets + SDK Python + CI para Indesap"
+requires-python = ">=3.10"
+dependencies = [
+"fastapi>=0.115",
+"uvicorn[standard]>=0.30",
+"pydantic>=2.7",
+"requests>=2.32",
+]
+
+
+[tool.black]
+line-length = 100
+
+
+[tool.ruff]
+line-length = 100
+select = ["E","F","I","UP","B"]
+
+
+[tool.coverage.run]
+source = ["app", "sdk"]
+branch = true
+
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
