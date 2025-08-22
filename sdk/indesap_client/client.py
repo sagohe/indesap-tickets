@@ -19,9 +19,7 @@ class Ticket:
 
 
 class IndesapClient:
-    def __init__(
-        self, base_url: str, api_key: str | None = None, timeout: int = 10
-    ) -> None:
+    def __init__(self, base_url: str, api_key: str | None = None, timeout: int = 10) -> None:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "indesap-client/0.1.0"})
@@ -39,9 +37,7 @@ class IndesapClient:
         priority: Priority = "medium",
     ) -> Ticket:
         payload = {"title": title, "description": description, "priority": priority}
-        r = self.session.post(
-            self._url("/tickets/"), json=payload, timeout=self.timeout
-        )
+        r = self.session.post(self._url("/tickets/"), json=payload, timeout=self.timeout)
         r.raise_for_status()
         data = r.json()
         return Ticket(**data)
@@ -57,8 +53,6 @@ class IndesapClient:
         return Ticket(**r.json())
 
     def close_ticket(self, ticket_id: int) -> Ticket:
-        r = self.session.post(
-            self._url(f"/tickets/{ticket_id}/close"), timeout=self.timeout
-        )
+        r = self.session.post(self._url(f"/tickets/{ticket_id}/close"), timeout=self.timeout)
         r.raise_for_status()
         return Ticket(**r.json())

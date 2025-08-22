@@ -17,14 +17,6 @@ dependencies = [
 [tool.black]
 line-length = 100
 
-[tool.ruff]
-line-length = 100
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
-# Si quieres ignorar líneas largas solo en tests, descomenta:
-# per-file-ignores = { "tests/*" = ["E501"], "test/*" = ["E501"] }
-
 [tool.coverage.run]
 source = ["app", "sdk"]
 branch = true
@@ -32,4 +24,3 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-
