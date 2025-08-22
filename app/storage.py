@@ -26,5 +26,6 @@ class InMemoryTicketStore:
             t.status = "closed"
         return t
 
+
 # 👇 agrega esta anotación de tipo
 store: InMemoryTicketStore = InMemoryTicketStore()
