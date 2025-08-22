@@ -41,4 +41,3 @@ def test_close_ticket() -> None:
     r2 = client.post(f"/tickets/{ticket_id}/close")
     assert r2.status_code == 200
     assert r2.json()["status"] == "closed"
-
