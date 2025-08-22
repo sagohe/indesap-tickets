@@ -17,29 +17,12 @@ dependencies = [
 [tool.black]
 line-length = 100
 
-# Ruff (linter) — usa sintaxis nueva "lint.*"
 [tool.ruff]
 line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-# Si lo deseas, ignora líneas largas solo en tests:
 # per-file-ignores = { "tests/*" = ["E501"], "test/*" = ["E501"] }
-
-# mypy — limita el análisis a app/ y sdk/
-[tool.mypy]
-python_version = "3.11"
-ignore_missing_imports = true
-files = "app sdk"
-
-# Coverage (pytest-cov)
-[tool.coverage.run]
-source = ["app", "sdk"]
-branch = true
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
 
 [tool.mypy]
 python_version = "3.11"
@@ -47,3 +30,11 @@ ignore_missing_imports = true
 files = "app sdk"
 explicit_package_bases = true
 namespace_packages = true
+
+[tool.coverage.run]
+source = ["app", "sdk"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
