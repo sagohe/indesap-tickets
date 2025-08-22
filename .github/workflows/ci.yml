@@ -48,7 +48,7 @@ jobs:
         run: black --check .
 
       - name: Type check (mypy)
-        run: mypy app sdk
+        run: mypy --explicit-package-bases app sdk
 
       - name: Tests + Coverage
         run: pytest -q --cov --cov-report=term-missing
