@@ -8,7 +8,6 @@ class InMemoryTicketStore:
         self._data: dict[int, Ticket] = {}
         self._seq = 0
 
-    # Convierte los datos en diccionario con model_dump() y los vuelve argumentos con **
     def create(self, payload: TicketCreate) -> Ticket:
         self._seq += 1
         t = Ticket(id=self._seq, **payload.model_dump())
