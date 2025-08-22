@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from ..schemas import Ticket, TicketCreate
-from ..storage import store
+from app.schemas import Ticket, TicketCreate
+from app.storage import store
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 

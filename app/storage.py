@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .schemas import Ticket, TicketCreate
+from app.schemas import Ticket, TicketCreate
 
 
 class InMemoryTicketStore:
@@ -26,5 +26,5 @@ class InMemoryTicketStore:
             t.status = "closed"
         return t
 
-
-store = InMemoryTicketStore()
+# 👇 agrega esta anotación de tipo
+store: InMemoryTicketStore = InMemoryTicketStore()
