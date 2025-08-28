@@ -2,7 +2,7 @@ from sdk.indesap_client import IndesapClient
 
 client = IndesapClient(base_url="http://127.0.0.1:8000")
 
-t1 = client.create_ticket("Checkout falla", "500 en /checkout", priority="high")
+t1 = client.create_ticket("Revisar falla", "500 en /revisiones", priority="high")
 t2 = client.create_ticket("Lento al iniciar sesión", "LCP alto", priority="medium")
 
 print("CREADOS:", t1, t2, sep="\n")

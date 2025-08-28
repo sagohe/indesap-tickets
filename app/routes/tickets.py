@@ -5,8 +5,11 @@ from fastapi import APIRouter, HTTPException
 from app.schemas import Ticket, TicketCreate
 from app.storage import store
 
+# Organiza direcciones con sus endpoints
+
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
+# Endpoints
 
 @router.post("/", response_model=Ticket, status_code=201)
 def create_ticket(payload: TicketCreate) -> Ticket:

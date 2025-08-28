@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from app.schemas import Ticket, TicketCreate
 
-
+# Almacenamiento de los datos, la bodega
 class InMemoryTicketStore:
     def __init__(self) -> None:
         self._data: dict[int, Ticket] = {}
@@ -27,5 +27,5 @@ class InMemoryTicketStore:
         return t
 
 
-# 👇 agrega esta anotación de tipo
+# store -> Variable para llamar funcones de InMemoryTicketStore en otro archivo .py
 store: InMemoryTicketStore = InMemoryTicketStore()
