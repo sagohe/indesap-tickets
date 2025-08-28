@@ -1,9 +1,11 @@
 from __future__ import annotations
-import json
+
 import responses
+
 from sdk.indesap_client import IndesapClient
 
 BASE = "http://example.com"
+
 
 @responses.activate
 def test_sdk_create_and_list_and_close() -> None:
@@ -11,7 +13,8 @@ def test_sdk_create_and_list_and_close() -> None:
 
     # Mock create
     responses.add(
-        responses.POST, f"{BASE}/tickets/",
+        responses.POST,
+        f"{BASE}/tickets/",
         json={"id": 1, "title": "X", "description": None, "priority": "high", "status": "open"},
         status=201,
         content_type="application/json",
@@ -19,7 +22,8 @@ def test_sdk_create_and_list_and_close() -> None:
 
     # Mock list
     responses.add(
-        responses.GET, f"{BASE}/tickets/",
+        responses.GET,
+        f"{BASE}/tickets/",
         json=[{"id": 1, "title": "X", "description": None, "priority": "high", "status": "open"}],
         status=200,
         content_type="application/json",
@@ -27,7 +31,8 @@ def test_sdk_create_and_list_and_close() -> None:
 
     # Mock close
     responses.add(
-        responses.POST, f"{BASE}/tickets/1/close",
+        responses.POST,
+        f"{BASE}/tickets/1/close",
         json={"id": 1, "title": "X", "description": None, "priority": "high", "status": "closed"},
         status=200,
         content_type="application/json",

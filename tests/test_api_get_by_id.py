@@ -1,8 +1,11 @@
 from __future__ import annotations
+
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
+
 
 def test_get_ticket_success() -> None:
     # creamos un ticket

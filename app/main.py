@@ -12,6 +12,7 @@ app.include_router(tickets_router)
 
 # Ver si la API esta viva
 
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}

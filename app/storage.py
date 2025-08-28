@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.schemas import Ticket, TicketCreate
 
+
 # Almacenamiento de los datos, la bodega
 class InMemoryTicketStore:
     def __init__(self) -> None:

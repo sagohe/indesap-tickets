@@ -11,6 +11,7 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 # Endpoints
 
+
 @router.post("/", response_model=Ticket, status_code=201)
 def create_ticket(payload: TicketCreate) -> Ticket:
     return store.create(payload)

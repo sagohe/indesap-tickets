@@ -6,12 +6,15 @@ from pydantic import BaseModel, Field
 
 # Creacion del ticket
 
+
 class TicketCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=200)
     description: str | None = Field(None, max_length=20000)
     priority: Literal["low", "medium", "high"] = "medium"
 
+
 # El ticket
+
 
 class Ticket(TicketCreate):
     id: int

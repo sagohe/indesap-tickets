@@ -1,11 +1,21 @@
 from __future__ import annotations
+
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
 
+
 def test_get_ticket_after_close() -> None:
-    r = client.post("/tickets/", json={"title": "Titulo Z", "description": None, "priority": "medium"})
+    r = client.post(
+        "/tickets/",
+        json={
+            "title": "Titulo Z",
+            "description": None,
+            "priority": "medium",
+        },
+    )
     assert r.status_code == 201
     tid = r.json()["id"]
 

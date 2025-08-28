@@ -10,6 +10,7 @@ Priority = Literal["low", "medium", "high"]
 
 # Datos que se le muestran al cliente
 
+
 @dataclass
 class Ticket:
     id: int
@@ -18,7 +19,9 @@ class Ticket:
     priority: Priority
     status: TicketStatus
 
+
 # Cliente para hablar con el API de tickets(Hacer peticiones)
+
 
 class IndesapClient:
     def __init__(self, base_url: str, api_key: str | None = None, timeout: int = 10) -> None:
