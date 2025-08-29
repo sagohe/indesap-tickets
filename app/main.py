@@ -9,8 +9,7 @@ from .routes.tickets import router as tickets_router
 app = FastAPI(
     title="Indesap Tickets API",
     version="0.1.0",
-    docs_url="/docs",          # fuerza Swagger en /docs
-    redoc_url="/redoc",        # opcional, doc alternativa
+    docs_url="/docs",          # fuerza Swagger en /docs 
     openapi_url="/openapi.json"  # fuerza el esquema en /openapi.json
 )
 
