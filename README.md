@@ -27,6 +27,8 @@ Proyecto creado como propuesta práctica para **Indesap**, mostrando buenas prá
 
 ## ▶️ Ejecutar la API
 
+Instalar dependencias principales:
+
 ```bash
 pip install -r requirements.txt
 uvicorn app.main:app --reload

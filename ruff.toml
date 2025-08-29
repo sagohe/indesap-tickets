@@ -1,6 +1,0 @@
-line-length = 100
-
-[lint]
-select = ["E", "F", "I", "UP", "B"]
-# Descomenta si quieres ignorar líneas largas en tests
-# per-file-ignores = { "tests/*" = ["E501"], "test/*" = ["E501"] }
