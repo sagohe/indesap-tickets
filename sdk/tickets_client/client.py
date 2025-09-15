@@ -23,11 +23,11 @@ class Ticket:
 # Cliente para hablar con el API de tickets(Hacer peticiones)
 
 
-class IndesapClient:
+class TicketsClient:
     def __init__(self, base_url: str, api_key: str | None = None, timeout: int = 10) -> None:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
-        self.session.headers.update({"User-Agent": "indesap-client/0.1.0"})
+        self.session.headers.update({"User-Agent": "tickets-client/0.1.0"})
         if api_key:
             self.session.headers.update({"Authorization": f"Bearer {api_key}"})
         self.timeout = timeout

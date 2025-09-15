@@ -1,6 +1,8 @@
-from sdk.indesap_client import IndesapClient
+from sdk.tickets_client import TicketsClient
 
-client = IndesapClient(base_url="http://127.0.0.1:8000")
+#Demo ejemplo de uso de la API
+
+client = TicketsClient(base_url="http://127.0.0.1:8000")
 
 t1 = client.create_ticket("Revisar falla", "500 en /revisiones", priority="high")
 t2 = client.create_ticket("Lento al iniciar sesión", "LCP alto", priority="medium")

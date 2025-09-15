@@ -36,3 +36,11 @@ def close_ticket(ticket_id: int) -> Ticket:
     if not t:
         raise HTTPException(status_code=404, detail="Ticket not found")
     return t
+
+
+@router.delete("/{ticket_id}", response_model=Ticket)
+def delete_ticket(ticket_id: int) -> Ticket:
+    t = store.delete(ticket_id)
+    if not t:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return t

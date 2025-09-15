@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestión de Tickets — Panel</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-0:#05060a; --bg-1:#0b0f14; --panel:#0f1724; --muted:#9aa3b2;
+      --accent-amber:#f59e0b; --accent-amber-600:#d97706;
+      --danger:#ef4444; --success:#10b981;
+      --card-border: rgba(255,255,255,0.06);
+    }
+    html,body{height:100%;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:linear-gradient(180deg,var(--bg-0),var(--bg-1));color:#e6eef8}
+
+    /* Remove heavy blur/diffusion: flatter crisp panels */
+    .panel, .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; border:1px solid var(--card-border); }
+
+    /* stronger card border with colored left accent */
+    .ticket-card{ display:block; position:relative; padding:16px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); transition: transform .18s ease, box-shadow .18s ease; }
+    .ticket-card:hover{ transform:translateY(-6px); box-shadow: 0 10px 30px rgba(2,6,23,0.7) }
+    .ticket-left-accent{ position:absolute; left:0; top:0; bottom:0; width:6px; border-top-left-radius:12px; border-bottom-left-radius:12px }
+
+    /* priority accents */
+    .accent-high{ background: linear-gradient(180deg,var(--danger), #c0262d) }
+    .accent-medium{ background: linear-gradient(180deg,var(--accent-amber-600), var(--accent-amber)) }
+    .accent-low{ background: linear-gradient(180deg,var(--success), #059669) }
+
+    /* clearer headings and muted text */
+    .muted{ color:var(--muted) }
+    .title-strong{ color:#f8fafc; font-weight:700 }
+
+    /* buttons */
+    .btn-primary{ background: linear-gradient(90deg,#10b981,#059669); color:#021412; font-weight:700; padding:12px 20px; border-radius:12px; box-shadow: 0 8px 24px rgba(4,120,87,0.18); font-size:1rem }
+    .btn-create-large{ padding:14px 24px; font-size:1.05rem; border-radius:14px; box-shadow: 0 10px 30px rgba(4,120,87,0.22); background: linear-gradient(90deg,#34d399,#10b981); color: #021412; font-weight:800 }
+    .btn-danger{ background:linear-gradient(90deg,var(--danger),#dc2626); color:white; padding:8px 12px; border-radius:10px; }
+
+    /* inputs focus */
+    input:focus, textarea:focus, select:focus{ outline:none; box-shadow:0 0 0 4px rgba(213,162,76,0.08); border-color:rgba(255,255,255,0.08) }
+
+    /* nice modal animation */
+    .modal-backdrop{ background:rgba(2,6,23,0.7) }
+    .modal-window{ transform: translateY(12px) scale(.99); opacity:0; transition: all .18s ease }
+    .modal-open .modal-window{ transform:none; opacity:1 }
+
+    /* tiny utilities */
+    ::-webkit-scrollbar{height:8px;width:8px} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:8px}
+  </style>
+</head>
+<body class="antialiased">
+  <div id="app" class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="py-6 px-6 lg:px-12 flex items-center justify-between panel">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center shadow">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7v10a2 2 0 0 0 2 2h14V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2" stroke="#e6eef8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl title-strong">Gestión de Tickets</h1>
+          <p class="text-sm muted">Soporte · Gestión clara y rápida</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex items-center px-3 py-2 rounded-lg panel">
+          <input id="search" placeholder="Buscar tickets, título, prioridad..." class="bg-transparent outline-none placeholder-slate-400 text-sm px-2" />
+        </div>
+        <div class="text-sm muted">sagohe</div>
+        <button id="btn-refresh" title="Recargar" class="p-2 rounded-md panel">🔄</button>
+        <button id="btn-open-create" class="btn-primary btn-create-large">Crear Ticket</button>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6 lg:px-12">
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Summary card: stronger, colorful top stripe -->
+        <div class="col-span-1 lg:col-span-1 panel rounded-xl p-5">
+          <div style="border-left:6px solid var(--accent-amber); padding-left:12px">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-semibold">Resumen</h2>
+              <small id="last-updated" class="muted text-sm">Actualizado: —</small>
+            </div>
+            <div class="grid grid-cols-1 gap-3 mt-4">
+              <div class="p-3 rounded-lg bg-gradient-to-b from-white/2 to-white/1" style="border:1px solid rgba(255,255,255,0.03)">
+                <div class="text-xs muted">Abiertos</div>
+                <div id="count-open" class="text-2xl font-bold">0</div>
+              </div>
+              <div class="p-3 rounded-lg bg-gradient-to-b from-white/2 to-white/1" style="border:1px solid rgba(255,255,255,0.03)">
+                <div class="text-xs muted">Cerrados</div>
+                <div id="count-closed" class="text-2xl font-bold">0</div>
+              </div>
+              <div class="p-3 rounded-lg bg-gradient-to-b from-white/2 to-white/1" style="border:1px solid rgba(255,255,255,0.03)">
+                <div class="text-xs muted">Prioridad alta</div>
+                <div id="count-high" class="text-2xl font-bold text-red-400">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tickets list -->
+        <div class="col-span-1 lg:col-span-2">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Tickets</h2>
+            <div class="text-sm muted">Haz clic en una tarjeta para ver detalles</div>
+          </div>
+
+          <div id="tickets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+          <div id="empty" class="mt-10 text-center muted hidden">
+            No hay tickets — crea el primero con el botón <strong>Crear Ticket</strong>.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="p-4 text-center text-sm muted">Gestión de Tickets · sagohe</footer>
+  </div>
+
+  <!-- Create Modal (animated, focus-friendly) -->
+  <div id="modal-create" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="absolute inset-0 modal-backdrop"></div>
+    <div class="relative w-full max-w-2xl p-6 panel rounded-2xl modal-window">
+      <div class="flex items-start justify-between">
+        <h3 class="text-xl font-bold">Crear Ticket</h3>
+        <button id="close-create" class="muted">✖</button>
+      </div>
+      <form id="form-create" class="mt-4 grid gap-3">
+        <label class="text-sm muted">Título <span class="text-xs muted">(mín 3)</span></label>
+        <input id="fc-title" name="title" required minLength="3" placeholder="Escribe un título atractivo" class="p-3 rounded bg-transparent border border-white/6" />
+        <label class="text-sm muted">Descripción</label>
+        <textarea id="fc-desc" name="description" rows="6" placeholder="Cuenta lo que pasó — sé claro y breve" class="p-3 rounded bg-transparent border border-white/6"></textarea>
+        <div class="flex gap-2 items-center">
+          <select id="fc-priority" name="priority" class="p-2 rounded bg-transparent border border-white/6">
+            <option value="low">Baja</option>
+            <option value="medium" selected>Media</option>
+            <option value="high">Alta</option>
+          </select>
+          <div class="ml-auto flex gap-2">
+            <button type="button" id="cancel-create" class="px-4 py-2 rounded panel muted">Cancelar</button>
+            <button type="submit" class="px-4 py-2 rounded btn-create-large">Crear ticket</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail Modal (with delete + close) -->
+  <div id="modal-detail" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="absolute inset-0 modal-backdrop"></div>
+    <div class="relative w-full max-w-3xl p-6 panel rounded-2xl modal-window">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 id="dt-title" class="text-2xl font-bold">Título</h3>
+          <p id="dt-meta" class="text-sm muted"><span id="dt-priority"></span> · <span id="dt-status"></span></p>
+        </div>
+        <div class="flex gap-2">
+          <button id="close-detail" class="muted">✖</button>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <p id="dt-desc" class="text-slate-200"></p>
+      </div>
+
+      <div class="mt-6 flex gap-3 justify-end">
+        <button id="btn-delete-ticket" class="px-4 py-2 rounded btn-danger">Eliminar ticket</button>
+        <button id="btn-close-ticket" class="px-4 py-2 rounded btn-danger">Cerrar ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nice confirm modal (custom, replaces native confirm) -->
+  <div id="modal-confirm" class="fixed inset-0 hidden items-center justify-center z-60">
+    <div class="absolute inset-0 modal-backdrop"></div>
+    <div class="relative w-full max-w-md p-6 panel rounded-xl modal-window">
+      <h4 class="text-lg font-semibold">Confirmar acción</h4>
+      <p class="muted mt-2" id="confirm-msg">¿Estás seguro?</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="confirm-cancel" class="px-4 py-2 rounded panel muted">Cancelar</button>
+        <button id="confirm-ok" class="px-4 py-2 rounded btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toasts" class="fixed right-6 bottom-6 flex flex-col gap-2 z-70"></div>
+
+  <script>
+    const API_BASE = '/tickets';
+    const $ = (s,r=document)=>r.querySelector(s);
+    const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+
+    // elements
+    const ticketsGrid = $('#tickets-grid');
+    const emptyEl = $('#empty');
+    const lastUpdated = $('#last-updated');
+    const modalCreate = $('#modal-create');
+    const modalDetail = $('#modal-detail');
+    const modalConfirm = $('#modal-confirm');
+    const btnOpenCreate = $('#btn-open-create');
+    const btnRefresh = $('#btn-refresh');
+    const formCreate = $('#form-create');
+    const toastContainer = $('#toasts');
+
+    let tickets = [];
+    let pendingDeleteId = null;
+
+    function showToast(txt, t=3500){ const n=document.createElement('div'); n.className='px-4 py-2 rounded panel'; n.textContent=txt; toastContainer.appendChild(n); setTimeout(()=>n.classList.add('opacity-0','translate-y-4'),10); setTimeout(()=>n.remove(),t);} 
+
+    // modal open helpers with animation class
+    function openModal(el){ el.classList.remove('hidden'); setTimeout(()=>el.classList.add('modal-open'),20); el.querySelector('.modal-window')?.classList.add('modal-open') }
+    function closeModal(el){ el.classList.remove('modal-open'); setTimeout(()=>el.classList.add('hidden'),160) }
+
+    // fetch
+    async function fetchTickets(){ try{ const r=await fetch(API_BASE+'/'); if(!r.ok) throw new Error('Error'); tickets=await r.json(); renderTickets(); updateSummary(); lastUpdated.textContent='Actualizado: '+new Date().toLocaleString(); }catch(e){ showToast('No se pudo cargar tickets — '+e.message) }}
+
+    function updateSummary(){ $('#count-open').textContent = tickets.filter(t=>t.status==='open').length; $('#count-closed').textContent = tickets.filter(t=>t.status==='closed').length; $('#count-high').textContent = tickets.filter(t=>t.priority==='high').length }
+
+    function priorityBadge(p){ if(p==='high') return '<span class="px-2 py-1 rounded text-xs bg-red-600/90">ALTA</span>'; if(p==='medium') return '<span class="px-2 py-1 rounded text-xs bg-amber-500/80">MEDIA</span>'; return '<span class="px-2 py-1 rounded text-xs bg-emerald-600/80">BAJA</span>' }
+    function statusPill(s){ return s==='open' ? '<span class="text-xs px-2 py-1 rounded bg-emerald-600/60">OPEN</span>' : '<span class="text-xs px-2 py-1 rounded bg-slate-700/60">CLOSED</span>' }
+
+    function renderTickets(){ ticketsGrid.innerHTML=''; if(!tickets.length){ emptyEl.classList.remove('hidden'); return } emptyEl.classList.add('hidden'); tickets.slice().reverse().forEach(t=>{ const div=document.createElement('div'); div.className='ticket-card'; div.innerHTML=`<div class="ticket-left-accent ${t.priority==='high'?'accent-high':t.priority==='medium'?'accent-medium':'accent-low'}"></div><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1"><h3 class="text-lg font-semibold text-slate-100">${escapeHtml(t.title)}</h3><p class="text-sm muted mt-1 line-clamp-3">${escapeHtml(t.description||'')}</p></div><div style="text-align:right;margin-left:12px"><div class="mb-2">${priorityBadge(t.priority)}</div><div>${statusPill(t.status)}</div></div></div><div class="mt-3 text-xs muted">Creado</div><button title="Eliminar" class="btn-trash" data-id="${t.id}" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:rgba(255,255,255,0.6);padding:6px;border-radius:6px">🗑</button>`; div.addEventListener('click',()=>openDetail(t.id)); ticketsGrid.appendChild(div); }); attachTrashHandlers() }
+
+    function attachTrashHandlers(){ $$('.btn-trash').forEach(b=>{ b.addEventListener('click', (e)=>{ e.stopPropagation(); const id=Number(b.getAttribute('data-id')); pendingDeleteId=id; $('#confirm-msg').textContent = `¿Eliminar ticket #${id}? Esta acción no se puede deshacer.`; openModal(modalConfirm); }) }) }
+
+    // create
+    formCreate.addEventListener('submit', async (e)=>{ e.preventDefault(); const title=$('#fc-title').value.trim(); const desc=$('#fc-desc').value.trim(); const pr=$('#fc-priority').value; if(!title||title.length<3){ showToast('El título debe tener al menos 3 caracteres'); return } try{ const r=await fetch(API_BASE+'/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description:desc,priority:pr})}); if(!r.ok) throw new Error('Error al crear'); const t=await r.json(); tickets.push(t); renderTickets(); updateSummary(); showToast('Ticket creado #'+t.id); closeModal(modalCreate); formCreate.reset(); }catch(err){ showToast('No se pudo crear — '+err.message) } })
+
+    // delete
+    $('#confirm-ok').addEventListener('click', async ()=>{ if(!pendingDeleteId) return closeModal(modalConfirm); try{ const r=await fetch(`${API_BASE}/${pendingDeleteId}`,{method:'DELETE'}); if(!r.ok){ const err=await r.json().catch(()=>null); throw new Error(err?.detail||'No se pudo eliminar'); } tickets = tickets.filter(t=>t.id!==pendingDeleteId); renderTickets(); updateSummary(); showToast('Ticket eliminado #'+pendingDeleteId); pendingDeleteId=null; closeModal(modalConfirm); closeModal(modalDetail); }catch(e){ showToast(e.message); closeModal(modalConfirm); } })
+    $('#confirm-cancel').addEventListener('click', ()=>{ pendingDeleteId=null; closeModal(modalConfirm); })
+
+    // close ticket
+    async function closeTicket(id){ try{ const r=await fetch(`${API_BASE}/${id}/close`,{method:'POST'}); if(!r.ok) throw new Error('Error al cerrar'); const updated=await r.json(); const idx=tickets.findIndex(x=>x.id===updated.id); if(idx>=0) tickets[idx]=updated; renderTickets(); updateSummary(); showToast('Ticket cerrado #'+updated.id); return updated }catch(e){ showToast('No se pudo cerrar — '+e.message) } }
+
+    // delete helper (not used because we use confirm modal handler)
+    async function deleteTicket(id){ try{ const r=await fetch(`${API_BASE}/${id}`,{method:'DELETE'}); if(!r.ok){ const err=await r.json().catch(()=>null); throw new Error(err?.detail||'No se pudo eliminar'); } tickets = tickets.filter(t=>t.id!==id); renderTickets(); updateSummary(); showToast('Ticket eliminado #'+id); }catch(e){ showToast(e.message) } }
+
+    // detail
+    async function getTicket(id){ try{ const r=await fetch(`${API_BASE}/${id}`); if(!r.ok) throw new Error('No encontrado'); return await r.json(); }catch(e){ showToast('No se pudo cargar — '+e.message); return null } }
+    async function openDetail(id){ const t=await getTicket(id); if(!t) return; $('#dt-title').textContent=t.title; $('#dt-id').textContent=t.id; $('#dt-desc').textContent=t.description||'(sin descripción)'; $('#dt-priority').innerHTML=priorityBadge(t.priority); $('#dt-status').innerHTML=statusPill(t.status); $('#btn-close-ticket').disabled=(t.status==='closed'); $('#btn-close-ticket').onclick=async ()=>{ await closeTicket(id); closeModal(modalDetail) }; $('#btn-delete-ticket').onclick=()=>{ pendingDeleteId=id; $('#confirm-msg').textContent=`¿Eliminar ticket #${id}? Esta acción no se puede deshacer.`; openModal(modalConfirm) }; openModal(modalDetail) }
+
+    // events
+    btnOpenCreate.addEventListener('click', ()=>openModal(modalCreate)); $('#close-create').addEventListener('click', ()=>closeModal(modalCreate)); $('#cancel-create').addEventListener('click', ()=>closeModal(modalCreate)); btnRefresh.addEventListener('click', fetchTickets); $('#close-detail').addEventListener('click', ()=>closeModal(modalDetail));
+
+    // search
+    $('#search').addEventListener('input', (e)=>{ const q=e.target.value.trim().toLowerCase(); if(!q) return renderTickets(); const filtered=tickets.filter(t=> (t.title||'').toLowerCase().includes(q) || (t.description||'').toLowerCase().includes(q) || String(t.id)===q || (t.priority||'').toLowerCase()===q ); ticketsGrid.innerHTML=''; if(!filtered.length){ emptyEl.classList.remove('hidden'); return } emptyEl.classList.add('hidden'); filtered.slice().reverse().forEach(t=>{ const div=document.createElement('div'); div.className='ticket-card'; div.innerHTML=`<div class="ticket-left-accent ${t.priority==='high'?'accent-high':t.priority==='medium'?'accent-medium':'accent-low'}"></div><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1"><h3 class="text-lg font-semibold text-slate-100">${escapeHtml(t.title)}</h3><p class="text-sm muted mt-1 line-clamp-3">${escapeHtml(t.description||'')}</p></div><div style="text-align:right;margin-left:12px"><div class="mb-2">${priorityBadge(t.priority)}</div><div>${statusPill(t.status)}</div></div></div><div class="mt-3 text-xs muted">#${t.id} · Creado</div><button title="Eliminar" class="btn-trash" data-id="${t.id}" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:rgba(255,255,255,0.6);padding:6px;border-radius:6px">🗑</button>`; div.addEventListener('click',()=>openDetail(t.id)); ticketsGrid.appendChild(div) }); attachTrashHandlers() });
+
+    function escapeHtml(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+
+    // initial
+    fetchTickets();
+  </script>
+</body>
+</html>

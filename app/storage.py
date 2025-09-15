@@ -27,6 +27,9 @@ class InMemoryTicketStore:
             t.status = "closed"
         return t
 
+    def delete(self, ticket_id: int) -> Ticket | None:
+        return self._data.pop(ticket_id, None)
 
-# store -> Variable para llamar funcones de InMemoryTicketStore en otro archivo .py
+
+# store -> Variable para llamar funciones de InMemoryTicketStore en otro archivo .py
 store: InMemoryTicketStore = InMemoryTicketStore()
